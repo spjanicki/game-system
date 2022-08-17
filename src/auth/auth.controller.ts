@@ -9,7 +9,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/register')
-  register(@Body() authCredentialsDto: AuthCredentialsDto): Promise<Player> {
+  async register(
+    @Body() authCredentialsDto: AuthCredentialsDto,
+  ): Promise<Player> {
     return this.authService.register(authCredentialsDto);
   }
 

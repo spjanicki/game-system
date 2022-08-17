@@ -7,17 +7,19 @@ export class PlayerController {
   constructor(private playerService: PlayerService) {}
 
   @Get()
-  getAllPlayers(): Promise<Player[]> {
+  async getAllPlayers(): Promise<Player[]> {
     return this.playerService.getAllPlayers();
   }
 
   @Get('/:id')
-  getPlayerById(@Param('id') id: string): Promise<Player> {
+  async getPlayerById(@Param('id') id: string): Promise<Player> {
     return this.playerService.getPlayerById(id);
   }
 
   @Get('/:username')
-  getPlayerByUsername(@Param('username') username: string): Promise<Player> {
+  async getPlayerByUsername(
+    @Param('username') username: string,
+  ): Promise<Player> {
     return this.playerService.getPlayerByUsername(username);
   }
 }

@@ -1,30 +1,54 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Player } from '../../player/player.entity';
-import { Repository } from 'typeorm';
+import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
+import { Player } from '../../player/player.entity';
+import { PlayerService } from '../../player/player.service';
+import { PlayerController } from '../../player/player.controller';
+import { PlayerLeague } from '../../player/player-league.enum';
 
 const mockAuthFactory = () => ({
-  getAllPlayers: jest.fn(),
-  register: jest.fn(),
-  getPlayerById: jest.fn(),
-  cratePlayer: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  findOne: jest.fn(),
 });
 
-const user1Mock: AuthCredentialsDto = {
-  username: 'Sarah',
-  password: 'SarahPwd',
-};
-
-const user2Mock: AuthCredentialsDto = {
-  username: 'Sarah1',
-  password: 'SarahPwd',
-};
-
+// TODO : Add more tests.
 describe('Auth Service', () => {
+  let authController: AuthController;
   let authService: AuthService;
-  let playerRepository: Repository<Player>;
+
+  const mockUserCredentials: AuthCredentialsDto = {
+    username: 'Sarah',
+    password: 'SarahPwd',
+  };
+
+  const mockUserCredentials1: AuthCredentialsDto = {
+    username: 'Sarah1',
+    password: 'SarahPwd',
+  };
+
+  const mockUserCreated: Player = {
+    id: '1231',
+    username: 'Sarah',
+    password: 'SarahPwd',
+    rating: 0,
+    currentLeague: PlayerLeague.BEGINNER,
+    isLoggedIn: true,
+    creationDate: new Date(),
+  };
+
+  const mockUserCreated1: Player = {
+    id: '1231',
+    username: 'Sarah1',
+    password: 'SarahPwd',
+    rating: 0,
+    currentLeague: PlayerLeague.BEGINNER,
+    isLoggedIn: true,
+    creationDate: new Date(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,18 +58,42 @@ describe('Auth Service', () => {
           provide: getRepositoryToken(Player),
           useFactory: mockAuthFactory,
         },
+        PlayerService,
+        { provide: getRepositoryToken(Player), useFactory: mockAuthFactory },
       ],
+      controllers: [AuthController, PlayerController],
     }).compile();
 
-    // playerRepository = module.get(Repository<Player>);
+    authController = module.get(AuthController);
     authService = module.get(AuthService);
   });
 
   describe('controller should be defined', () => {
     it('calls AuthService.getAllUsers and returns the result', () => {
-      expect(authService).toBeDefined();
-      // authService
-      // authService.cratePlayer(user1Mock);
+      expect(authController).toBeDefined();
+    });
+  });
+
+  describe('', () => {
+    it('Should create user.', async () => {
+      authService.cratePlayer = jest.fn().mockReturnValue(mockUserCreated);
+
+      const result = await authService.cratePlayer(mockUserCredentials);
+
+      expect(authService.cratePlayer).toBeCalledTimes(1);
+      expect(result).toBe(mockUserCreated);
+    });
+  });
+
+  describe('', () => {
+    it('Should register user.', async () => {
+      authService.register = jest.fn().mockReturnValue(mockUserCreated1);
+
+      expect(authService.register).toBeCalledTimes(0);
+      const registerResult = await authService.register(mockUserCredentials1);
+
+      expect(authService.register).toBeCalledTimes(1);
+      expect(registerResult).toBe(mockUserCreated1);
     });
   });
 });
