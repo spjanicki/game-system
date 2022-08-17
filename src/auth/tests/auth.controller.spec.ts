@@ -55,17 +55,17 @@ describe('AuthController', () => {
   describe('create user ', () => {
     it('', async () => {
       const player1: Player = await authController.register(user1Mock);
-      const player2: Player = await authController.register(user2Mock);
+      // const player2: Player = await authController.register(user2Mock);
 
       const fetchedPlayer1 = await playerController.getPlayerByUsername(
         'Sarah',
       );
-      const fetchedPlayer2 = await playerController.getPlayerByUsername(
-        'Sarah1',
-      );
+      // const fetchedPlayer2 = await playerController.getPlayerByUsername(
+      //   'Sarah1',
+      // );
 
-      expect(fetchedPlayer1).toEqual(player1);
-      expect(fetchedPlayer2).toEqual(player2);
+      expect(fetchedPlayer1).toBe(player1);
+      // expect(fetchedPlayer2).toEqual(player2);
     });
   });
 });

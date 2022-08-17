@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Player } from '../../player/player.entity';
-import { AuthCredentialsDto } from 'src/auth/dto/auth-credentials.dto';
-import { AuthService } from 'src/auth/auth.service';
+import { Player } from '../player.entity';
+import { AuthCredentialsDto } from '../../auth/dto/auth-credentials.dto';
+import { AuthService } from '../../auth/auth.service';
 import { PlayerService } from '../player.service';
 
 const mockAuthFactory = () => ({
@@ -10,6 +10,7 @@ const mockAuthFactory = () => ({
   register: jest.fn(),
   getPlayerById: jest.fn(),
   cratePlayer: jest.fn(),
+  create: jest.fn(),
 });
 
 const user1Mock: AuthCredentialsDto = {

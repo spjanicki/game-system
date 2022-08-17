@@ -4,11 +4,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { Player } from '../player/player.entity';
 import * as bcrypt from 'bcryptjs';
 import { PlayerLeague } from '../player/player-league.enum';
+import { Repository } from 'typeorm';
 
 enum PlayerCreationError {
   ALREADY_EXIST = '23505',
