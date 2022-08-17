@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Need to node-gyp for bcrypt
 RUN apt-get -qy update && apt-get -qy install build-essential procps
-RUN ["npm", "install", "-g", "node-gyp"]
+RUN ["npm", "install", "-g", "node-gyp"] 
+# rm node-gyp (bcrypt probs + build-essential)
 
 EXPOSE 3000

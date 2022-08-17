@@ -1,0 +1,6 @@
+export enum PlayerLeague {
+  BEGINNER = 'BEGINNER',
+  INTERMEDIATE = 'INTERMEDIATE',
+  NOVICE = 'NOVICE',
+  EXPERT = 'EXPERT',
+}

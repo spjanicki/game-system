@@ -71,3 +71,10 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Docker specs
+docker-compose -f docker/docker-compose.local.yaml down -v
+
+docker volume prune
+
+and delete /database/postgres
