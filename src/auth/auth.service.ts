@@ -2,14 +2,13 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { PlayerLeague } from './player-league.enum';
-import { Player } from './player.entity';
+import { Player } from '../player/player.entity';
 import * as bcrypt from 'bcryptjs';
+import { PlayerLeague } from 'src/player/player-league.enum';
 
 enum PlayerCreationError {
   ALREADY_EXIST = '23505',
@@ -55,27 +54,5 @@ export class AuthService {
     return this.cratePlayer(authCredentialsDto);
   }
 
-  async getAllPlayers(): Promise<Player[]> {
-    return await this.playerRepository.find();
-  }
-
-  async getPlayerById(id: string): Promise<Player> {
-    const player = await this.playerRepository.findOne({ where: { id } });
-
-    if (!player) {
-      throw new NotFoundException(`No player with ID ${id} exists.`);
-    }
-    return player;
-  }
-
-  async getPlayerByUsername(username: string): Promise<Player> {
-    const player = await this.playerRepository.findOne({ where: { username } });
-
-    if (!player) {
-      throw new NotFoundException(
-        `No player with username ${username} exists.`,
-      );
-    }
-    return player;
-  }
+  // lOGIN method
 }
