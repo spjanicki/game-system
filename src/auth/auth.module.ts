@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Player } from '../player/player.entity';
-import { PlayerModule } from 'src/player/player.module';
+import { PlayerModule } from '../player/player.module';
 
 @Module({
   providers: [AuthService],

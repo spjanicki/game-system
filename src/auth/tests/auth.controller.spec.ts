@@ -5,13 +5,13 @@ import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 import { Player } from '../../player/player.entity';
-import { PlayerService } from 'src/player/player.service';
-import { PlayerController } from 'src/player/player.controller';
+import { PlayerService } from '../../player/player.service';
+import { PlayerController } from '../../player/player.controller';
 
 const mockAuthFactory = () => ({
-  create: jest.fn(),
-  save: jest.fn(),
-  findOne: jest.fn(),
+  create: jest.fn((x) => x),
+  save: jest.fn((x) => x),
+  findOne: jest.fn((x) => x),
 });
 
 describe('AuthController', () => {
@@ -39,7 +39,7 @@ describe('AuthController', () => {
         PlayerService,
         { provide: getRepositoryToken(Player), useFactory: mockAuthFactory },
       ],
-      controllers: [AuthController],
+      controllers: [AuthController, PlayerController],
     }).compile();
 
     authController = module.get(AuthController);
@@ -57,8 +57,12 @@ describe('AuthController', () => {
       const player1: Player = await authController.register(user1Mock);
       const player2: Player = await authController.register(user2Mock);
 
-      const fetchedPlayer1 = playerController.getPlayerByUsername('Sarah');
-      const fetchedPlayer2 = playerController.getPlayerByUsername('Sarah1');
+      const fetchedPlayer1 = await playerController.getPlayerByUsername(
+        'Sarah',
+      );
+      const fetchedPlayer2 = await playerController.getPlayerByUsername(
+        'Sarah1',
+      );
 
       expect(fetchedPlayer1).toEqual(player1);
       expect(fetchedPlayer2).toEqual(player2);
