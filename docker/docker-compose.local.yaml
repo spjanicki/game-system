@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: database-gamesystem
+    image: postgres:12.3-alpine
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - ../database/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - gamesystem_network
+
+  gamesystem:
+    container_name: server-gamesystem
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.local
+    depends_on:
+      - postgres
+    ports:
+      - 3000:3000
+    volumes:
+      - ../:/app
+      - ../node_modules
+    command: sh -cx "npm install && npm rebuild && npm run start:dev"
+    networks:
+      - gamesystem_network
+
+  pgadmin:
+    container_name: pgadmin-gamesystem
+    restart: unless-stopped
+    image: dpage/pgadmin4
+    env_file:
+      - ../.env
+    ports:
+      - 15432:80
+    environment:
+      - PGADMIN_CONFIG_SERVER_MODE=True
+    volumes:
+      - ../database/pgadmin4:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - gamesystem_network
+
+
+networks:
+  gamesystem_network:
+    driver: bridge
