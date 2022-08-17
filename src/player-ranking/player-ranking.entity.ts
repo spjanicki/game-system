@@ -9,9 +9,6 @@ export class PlayerRanking {
   userId: string;
 
   @Column()
-  rating: number;
-
-  @Column()
   wins: number;
 
   @Column()
@@ -19,4 +16,17 @@ export class PlayerRanking {
 
   @Column()
   draws: number;
+
+  // Columns necessary for Glicko calculation
+  @Column()
+  rating: number;
+
+  @Column()
+  tau: string;
+
+  @Column()
+  rd: string;
+
+  @Column()
+  vol: string;
 }

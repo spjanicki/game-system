@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { PlayerRanking } from './player-ranking.entity';
 import { PlayerService } from '../player/player.service';
 import { GameResultDto } from './dto/game-result.dto';
+import { GlickoInitialValues } from './glicko-initial-values.enum';
 
 @Injectable()
 export class PlayerRankingService {
@@ -19,31 +20,39 @@ export class PlayerRankingService {
   async setPlayerRanking(gameResultDto: GameResultDto): Promise<void> {
     const { winnerId, loserId } = gameResultDto;
 
-    const winnerRanking = this.getPlayerRanking(winnerId);
-    const loserRanking = this.getPlayerRanking(loserId);
+    const winnerRanking = await this.getPlayerRanking(winnerId);
+    const loserRanking = await this.getPlayerRanking(loserId);
 
     // TODO : Implement
   }
 
-  async getPlayerRankingShort(userId: string): Promise<number> {
-    const player = this.playerService.getPlayerById(userId);
-    return null;
+  async getPlayerRanking(playerId: string): Promise<PlayerRanking> {
+    await this.playerService.getPlayerById(playerId);
+
+    const playerRanking = await this.playerRankingRepository.findOne({
+      where: { userId: playerId },
+    });
+
+    if (!playerRanking) {
+      console.log('creating new player ranking');
+      return await this.createNewPlayerRanking(playerId);
+    }
+
+    return playerRanking;
   }
 
-  async getPlayerRanking(userId: string): Promise<PlayerRanking> {
-    const player = this.playerService.getPlayerById(userId);
+  async createNewPlayerRanking(id: string): Promise<PlayerRanking> {
+    const playerRanking = {
+      userId: id,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      rating: GlickoInitialValues.RATING,
+      tau: GlickoInitialValues.TAU.toString(),
+      rd: GlickoInitialValues.RD.toString(),
+      vol: GlickoInitialValues.VOL.toString(),
+    };
 
-    // if userId !exist --> error
-
-    // fetch playuer ranking
-
-    // if !playerRank --> create and return PlayerRanking
-
-    // else return playerRank
-    return null;
-  }
-
-  async processPlayerRanking(playerRankingDto: GameResultDto): Promise<any> {
-    return null;
+    return await this.playerRankingRepository.save(playerRanking);
   }
 }
