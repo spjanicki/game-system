@@ -9,8 +9,7 @@ import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { PlayerLeague } from './player-league.enum';
 import { Player } from './player.entity';
-import * as bcrypt from 'bcrypt';
-import { NotFoundError } from 'rxjs';
+import * as bcrypt from 'bcryptjs';
 
 enum PlayerCreationError {
   ALREADY_EXIST = '23505',
