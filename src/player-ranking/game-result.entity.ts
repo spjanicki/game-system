@@ -13,7 +13,7 @@ export class GameResult {
   loserId: string;
 
   @Column()
-  scoreIsConsumed: boolean;
+  isConsummed: boolean;
 
   @Column()
   date: Date;
