@@ -22,7 +22,7 @@ export class AuthService {
     private playerRepository: Repository<Player>,
   ) {}
 
-  async cratePlayer(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async cratePlayer(authCredentialsDto: AuthCredentialsDto): Promise<Player> {
     const { username, password } = authCredentialsDto;
 
     const salt = await bcrypt.genSalt();
@@ -42,16 +42,16 @@ export class AuthService {
     try {
       await this.playerRepository.save(player);
     } catch (error) {
-      console.log(error);
       if (error.code === PlayerCreationError.ALREADY_EXIST) {
         throw new ConflictException('Username already exist');
       } else {
         throw new InternalServerErrorException();
       }
     }
+    return player;
   }
 
-  async register(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async register(authCredentialsDto: AuthCredentialsDto): Promise<Player> {
     return this.cratePlayer(authCredentialsDto);
   }
 
@@ -64,6 +64,17 @@ export class AuthService {
 
     if (!player) {
       throw new NotFoundException(`No player with ID ${id} exists.`);
+    }
+    return player;
+  }
+
+  async getPlayerByUsername(username: string): Promise<Player> {
+    const player = await this.playerRepository.findOne({ where: { username } });
+
+    if (!player) {
+      throw new NotFoundException(
+        `No player with username ${username} exists.`,
+      );
     }
     return player;
   }
