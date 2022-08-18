@@ -10,7 +10,6 @@ import {
   GlickoCalculationClassUtils,
 } from 'src/utils/glicko-calculation';
 import { Player as GlickoPlayer } from 'glicko-two';
-import { Player } from 'src/player/player.entity';
 import { PlayerLeague } from 'src/player/player-league.enum';
 
 export interface PlayerRankingInfos {
@@ -26,8 +25,6 @@ export class PlayerRankingService {
     private playerService: PlayerService,
     @InjectRepository(PlayerRanking)
     private playerRankingRepository: Repository<PlayerRanking>,
-    @InjectRepository(Player)
-    private playerRepository: Repository<Player>,
   ) {}
 
   async createNewPlayerRanking(id: string): Promise<PlayerRanking> {
