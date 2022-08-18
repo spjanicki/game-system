@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Player } from '../player/player.entity';
 import { Repository } from 'typeorm';
 import { PlayerRanking } from './player-ranking.entity';
 import { PlayerService } from '../player/player.service';
@@ -11,8 +10,6 @@ import { GlickoInitialValues } from './glicko-initial-values.enum';
 export class PlayerRankingService {
   constructor(
     private playerService: PlayerService,
-    @InjectRepository(Player)
-    private playerRepository: Repository<Player>,
     @InjectRepository(PlayerRanking)
     private playerRankingRepository: Repository<PlayerRanking>,
   ) {}
@@ -34,7 +31,6 @@ export class PlayerRankingService {
     });
 
     if (!playerRanking) {
-      console.log('creating new player ranking');
       return await this.createNewPlayerRanking(playerId);
     }
 

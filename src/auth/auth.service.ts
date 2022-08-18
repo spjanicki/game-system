@@ -32,7 +32,6 @@ export class AuthService {
     const player = this.playerRepository.create({
       username,
       password: hashedPwd,
-      rating: 0,
       currentLeague: PlayerLeague.BEGINNER,
       isLoggedIn: true,
       creationDate,

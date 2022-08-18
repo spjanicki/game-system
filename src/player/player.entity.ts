@@ -13,9 +13,6 @@ export class Player {
   password: string;
 
   @Column()
-  rating: number;
-
-  @Column()
   currentLeague: PlayerLeague; // Will facilitate the match making.
 
   @Column()
