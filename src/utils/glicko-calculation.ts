@@ -1,78 +1,56 @@
 import { Player as GlickoPlayer, Outcome } from 'glicko-two';
 import { PlayerRanking } from 'src/player-ranking/player-ranking.entity';
 
-/**
- *
- * TODO : Simplify this class. For the sake of the time remaining, i copy-pasta everything but in the next iteration it will be cleaner
- */
 export class CalculationResult {
   rating: number;
   ratingDeviation: string;
   volatility: string;
 }
 
+export enum GameStatus {
+  WIN = 1,
+  LOSS = 0,
+  TIE = 0.5,
+}
+
 enum GlickoDefault {
   defaultRating = 1500,
 }
 
-function createGlickoPlayer(player: PlayerRanking): GlickoPlayer {
-  return new GlickoPlayer({
-    defaultRating: GlickoDefault.defaultRating,
-    rating: player.rating,
-    ratingDeviation: Number(player.rd),
-    tau: Number(player.tau),
-    volatility: Number(player.vol),
-  });
-}
+export class GlickoCalculationClassUtils {
+  public player: GlickoPlayer;
 
-export function calculateWinnerOutput(
-  winner: PlayerRanking,
-  loser: PlayerRanking,
-): CalculationResult {
-  const glickoWinner = createGlickoPlayer(winner);
-  const glickoLooser = createGlickoPlayer(loser);
+  constructor(public receivedPlayer: PlayerRanking) {
+    this.player = this.createGlickoPlayer(receivedPlayer);
+  }
 
-  glickoWinner.addResult(glickoLooser, Outcome.Win);
-  glickoWinner.updateRating();
+  private createGlickoPlayer(player: PlayerRanking): GlickoPlayer {
+    return new GlickoPlayer({
+      defaultRating: GlickoDefault.defaultRating,
+      rating: player.rating,
+      ratingDeviation: Number(player.rd),
+      tau: Number(player.tau),
+      volatility: Number(player.vol),
+    });
+  }
 
-  return {
-    rating: glickoWinner.rating,
-    ratingDeviation: glickoWinner.ratingDeviation.toString(),
-    volatility: glickoWinner.volatility.toString(),
-  } as CalculationResult;
-}
+  public processGameOutputCalculation(
+    opponentRanking: PlayerRanking,
+    gameResultStatus: GameStatus,
+  ) {
+    const glickoOpponent = this.createGlickoPlayer(opponentRanking);
 
-export function calculateLooserOutput(
-  winner: PlayerRanking,
-  loser: PlayerRanking,
-): CalculationResult {
-  const glickoWinner = createGlickoPlayer(winner);
-  const glickoLooser = createGlickoPlayer(loser);
+    if (gameResultStatus === GameStatus.WIN) {
+      this.player.addResult(glickoOpponent, Outcome.Win);
+    } else if (gameResultStatus === GameStatus.LOSS) {
+      this.player.addResult(glickoOpponent, Outcome.Loss);
+    } else {
+      this.player.addResult(glickoOpponent, Outcome.Tie);
+    }
+    this.player.updateRating();
+  }
 
-  glickoLooser.addResult(glickoWinner, Outcome.Loss);
-  glickoLooser.updateRating();
-
-  return {
-    rating: glickoLooser.rating,
-    ratingDeviation: glickoLooser.ratingDeviation.toString(),
-    volatility: glickoLooser.volatility.toString(),
-  } as CalculationResult;
-}
-
-// Has to be called twice for now... pretty bad
-export function calculateTieOutput(
-  player1: PlayerRanking,
-  player2: PlayerRanking,
-): CalculationResult {
-  const glickoPlayer1 = createGlickoPlayer(player1);
-  const glickoPlayer2 = createGlickoPlayer(player2);
-
-  glickoPlayer1.addResult(glickoPlayer2, Outcome.Tie);
-  glickoPlayer1.updateRating();
-
-  return {
-    rating: glickoPlayer1.rating,
-    ratingDeviation: glickoPlayer1.ratingDeviation.toString(),
-    volatility: glickoPlayer1.volatility.toString(),
-  } as CalculationResult;
+  public getPlayer(): GlickoPlayer {
+    return this.player;
+  }
 }

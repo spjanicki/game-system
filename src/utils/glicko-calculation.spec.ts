@@ -1,35 +1,6 @@
-import {
-  calculateLooserOutput,
-  calculateTieOutput,
-  calculateWinnerOutput,
-  CalculationResult,
-} from './glicko-calculation';
+import { GameStatus, GlickoCalculationClassUtils } from './glicko-calculation';
 
-const mockWinnerPlayer = {
-  id: '',
-  userId: '',
-  wins: 0,
-  losses: 0,
-  draws: 0,
-  rating: 1500,
-  tau: '0.5',
-  rd: '200',
-  vol: '0.06',
-};
-
-const mockLooserPlayer = {
-  id: '',
-  userId: '',
-  wins: 0,
-  losses: 0,
-  draws: 0,
-  rating: 1500,
-  tau: '0.5',
-  rd: '140',
-  vol: '0.06',
-};
-
-const mockBetterPlayer = {
+const mockGoodPlayer = {
   id: '',
   userId: '',
   wins: 51,
@@ -53,60 +24,64 @@ const mockBadPlayer = {
   vol: '0.06',
 };
 
-describe('Winner ', () => {
-  const winnerOutput = calculateWinnerOutput(
-    mockWinnerPlayer,
-    mockLooserPlayer,
-  );
-  test('Returned score for the winner should be higher than before calculation', () => {
-    expect(winnerOutput.rating).toBeGreaterThan(mockWinnerPlayer.rating);
+describe('Glicko calculation with good player wins to bad ', () => {
+  const goodPlayer = new GlickoCalculationClassUtils(mockGoodPlayer);
+
+  goodPlayer.processGameOutputCalculation(mockBadPlayer, GameStatus.WIN);
+  test('Returned score after a win should be higher than before the win', () => {
+    expect(goodPlayer.getPlayer().rating).toBeGreaterThan(
+      mockGoodPlayer.rating,
+    );
   });
 
-  test('Returned rating deviation for the winner should be different than before calculation', () => {
-    expect(Number(winnerOutput.ratingDeviation)).not.toEqual(
-      Number(mockWinnerPlayer.rd),
+  test('Returned rating deviation of the player after a win should be different than before calculation', () => {
+    expect(Number(goodPlayer.getPlayer().ratingDeviation)).not.toEqual(
+      Number(mockGoodPlayer.rd),
     );
   });
 });
 
-describe('Loser ', () => {
-  const loserOutput = calculateLooserOutput(mockWinnerPlayer, mockLooserPlayer);
+describe('Glicko calculation with bad player wins to good player', () => {
+  const badPlayer = new GlickoCalculationClassUtils(mockBadPlayer);
 
-  test('Returned score for the loser should be lesser than before calculation', () => {
-    expect(loserOutput.rating).toBeLessThan(mockWinnerPlayer.rating);
+  badPlayer.processGameOutputCalculation(mockGoodPlayer, GameStatus.WIN);
+  test('Returned score after a win should be higher than before the win', () => {
+    expect(badPlayer.getPlayer().rating).toBeGreaterThan(mockBadPlayer.rating);
   });
 
-  test('Returned rating deviation for the looser should be different than before calculation', () => {
-    expect(Number(loserOutput.ratingDeviation)).not.toEqual(
-      Number(mockLooserPlayer.rd),
+  test('Returned rating deviation of the player after a win should be different than before calculation', () => {
+    expect(Number(badPlayer.getPlayer().ratingDeviation)).not.toEqual(
+      Number(mockBadPlayer.rd),
     );
   });
 });
 
-describe('Tie calculated for good player compared to bad player', () => {
-  const user1 = calculateTieOutput(mockBadPlayer, mockBetterPlayer);
+describe('Glicko calculation of a tie - Good user to bad user- ', () => {
+  const goodPlayer = new GlickoCalculationClassUtils(mockGoodPlayer);
 
-  test('Returned score for a Tie should be the same as before', () => {
-    expect(user1.rating).toBeGreaterThan(mockBadPlayer.rating);
+  goodPlayer.processGameOutputCalculation(mockBadPlayer, GameStatus.TIE);
+  test('Returned score for a Tie between good and bad user lesser than before - goodPlayer POV', () => {
+    expect(goodPlayer.getPlayer().rating).toBeLessThan(mockGoodPlayer.rating);
   });
 
   test('Returned rating deviation for the better player should be different than before calculation', () => {
-    expect(Number(user1.ratingDeviation)).not.toEqual(
-      Number(mockLooserPlayer.rd),
+    expect(Number(goodPlayer.getPlayer().ratingDeviation)).not.toEqual(
+      Number(mockGoodPlayer.rd),
     );
   });
 });
 
-describe('Tie calculated for bad player compared to good player', () => {
-  const user1 = calculateTieOutput(mockBetterPlayer, mockBadPlayer);
+describe('Glicko calculation of a tie - Bad user to Good user- ', () => {
+  const badUser = new GlickoCalculationClassUtils(mockBadPlayer);
 
-  test('Returned score for a Tie should be the same as before', () => {
-    expect(user1.rating).toBeLessThan(mockBetterPlayer.rating);
+  badUser.processGameOutputCalculation(mockGoodPlayer, GameStatus.TIE);
+  test('Returned score for a Tie between bad player and good player shopuld be superior - goodPlayer POV', () => {
+    expect(badUser.getPlayer().rating).toBeGreaterThan(mockBadPlayer.rating);
   });
 
   test('Returned rating deviation for the better player should be different than before calculation', () => {
-    expect(Number(user1.ratingDeviation)).not.toEqual(
-      Number(mockLooserPlayer.rd),
+    expect(Number(badUser.getPlayer().ratingDeviation)).not.toEqual(
+      Number(mockBadPlayer.rd),
     );
   });
 });
