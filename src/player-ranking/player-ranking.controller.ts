@@ -17,10 +17,10 @@ export class PlayerRankingController {
     );
   }
 
-  // @Get()
-  // async getAllPlayersRanking(): Promise<PlayerRanking[]> {
-  //   return this.playerRankingService.getAllPlayerRankings();
-  // }
+  @Get()
+  async getAllPlayersRanking(): Promise<PlayerRanking[]> {
+    return this.playerRankingService.getAllPlayerRankings();
+  }
 
   @Get('/:id')
   async getPlayerRaking(@Param('id') id: string): Promise<PlayerRanking> {
