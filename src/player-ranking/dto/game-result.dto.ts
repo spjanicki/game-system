@@ -3,4 +3,5 @@ export class GameResultDto {
   // matchId: string;
   winnerId: string;
   loserId: string;
+  isTie: boolean;
 }
