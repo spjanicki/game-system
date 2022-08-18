@@ -3,7 +3,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Player } from '../player.entity';
 import { AuthCredentialsDto } from '../../auth/dto/auth-credentials.dto';
 import { AuthService } from '../../auth/auth.service';
-import { PlayerService } from '../player.service';
 
 const mockAuthFactory = () => ({
   getAllPlayers: jest.fn(),
@@ -25,8 +24,6 @@ const user2Mock: AuthCredentialsDto = {
 
 describe('Auth Service', () => {
   let authService: AuthService;
-  let PlayerService: PlayerService;
-  //   let playerRepository: Repository<Player>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,7 +36,6 @@ describe('Auth Service', () => {
       ],
     }).compile();
 
-    // playerRepository = module.get(Repository<Player>);
     authService = module.get(AuthService);
   });
 

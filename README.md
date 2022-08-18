@@ -38,7 +38,21 @@ $ npm install
 $ start:docker-dev
 ```
 
-## Running the ap
+## To have access to Swagger documentation 
+
+```bash
+$ http://localhost:3000/api#
+```
+
+
+## To have access to pgAdmin database 
+
+```bash
+$ http://localhost:15432
+```
+
+
+## Running the app
 
 ```bash
 # development
