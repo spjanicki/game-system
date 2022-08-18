@@ -27,7 +27,7 @@ export class GlickoCalculationClassUtils {
   private createGlickoPlayer(player: PlayerRanking): GlickoPlayer {
     return new GlickoPlayer({
       defaultRating: GlickoDefault.defaultRating,
-      rating: player.rating,
+      rating: Number(player.rating),
       ratingDeviation: Number(player.rd),
       tau: Number(player.tau),
       volatility: Number(player.vol),

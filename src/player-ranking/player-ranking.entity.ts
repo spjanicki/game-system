@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class PlayerRanking {
-  @PrimaryGeneratedColumn('uuid') // Necessary?
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -19,7 +19,7 @@ export class PlayerRanking {
 
   // Columns necessary for Glicko calculation
   @Column()
-  rating: number;
+  rating?: string;
 
   @Column()
   tau: string;

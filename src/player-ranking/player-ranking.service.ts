@@ -19,41 +19,46 @@ export class PlayerRankingService {
     private playerRankingRepository: Repository<PlayerRanking>,
   ) {}
 
-  async setPlayerRanking(gameResultDto: GameResultDto): Promise<void> {
+  async handlePlayerRankingModification(
+    gameResultDto: GameResultDto,
+  ): Promise<void> {
     const { winnerId, loserId, isTie } = gameResultDto;
 
-    // Get player rankings
     let winnerRanking = await this.getPlayerRanking(winnerId);
-    let winnerOutput: GlickoPlayer;
-
     let loserRanking = await this.getPlayerRanking(loserId);
-    let loserOutput: GlickoPlayer;
 
-    if (isTie) {
-      // handle
-    } else {
-      winnerOutput = await this.getFirstPlayerGameOutputResult(
-        winnerRanking,
-        loserRanking,
-        GameStatus.WIN,
-      );
-
-      loserOutput = await this.getFirstPlayerGameOutputResult(
-        loserRanking,
-        winnerRanking,
-        GameStatus.LOSS,
-      );
-    }
-
-    winnerRanking = this.updatePlayerRanking(
+    winnerRanking = await this.calculateFirstPlayerRaking(
       winnerRanking,
-      winnerOutput,
-      GameStatus.WIN,
-    );
-    loserRanking = this.updatePlayerRanking(
       loserRanking,
-      loserOutput,
-      GameStatus.LOSS,
+      isTie === true ? GameStatus.TIE : GameStatus.WIN,
+    );
+
+    loserRanking = await this.calculateFirstPlayerRaking(
+      loserRanking,
+      winnerRanking,
+      isTie === true ? GameStatus.TIE : GameStatus.LOSS,
+    );
+
+    await this.updatePlayerRanking(winnerRanking);
+    await this.updatePlayerRanking(loserRanking);
+  }
+
+  async calculateFirstPlayerRaking(
+    concernedPlayer: PlayerRanking,
+    adversary: PlayerRanking,
+    concernedPlayerGameStatus: GameStatus,
+  ): Promise<PlayerRanking> {
+    console.log('PlayerStatus', concernedPlayerGameStatus);
+    const concernedPlayerOutput = await this.getFirstPlayerGameOutputResult(
+      concernedPlayer,
+      adversary,
+      concernedPlayerGameStatus,
+    );
+
+    return this.calculatePlayerRanking(
+      concernedPlayer,
+      concernedPlayerOutput,
+      concernedPlayerGameStatus,
     );
   }
 
@@ -81,11 +86,26 @@ export class PlayerRankingService {
       where: { userId: playerId },
     });
 
+    console.log('fetchedPPlayerRankig : ', playerRanking);
+
     if (!playerRanking) {
       return await this.createNewPlayerRanking(playerId);
     }
 
     return playerRanking;
+  }
+
+  async getAllPlayerRankings(): Promise<PlayerRanking[]> {
+    const playerRanking = await this.playerRankingRepository.find();
+
+    return playerRanking;
+  }
+
+  async updatePlayerRanking(
+    playerRanking: PlayerRanking,
+  ): Promise<PlayerRanking> {
+    console.log('plaayerRaking to save: ', playerRanking);
+    return await this.playerRankingRepository.save(playerRanking);
   }
 
   async createNewPlayerRanking(id: string): Promise<PlayerRanking> {
@@ -94,7 +114,7 @@ export class PlayerRankingService {
       wins: 0,
       losses: 0,
       draws: 0,
-      rating: GlickoInitialValues.RATING,
+      rating: GlickoInitialValues.RATING.toString(),
       tau: GlickoInitialValues.TAU.toString(),
       rd: GlickoInitialValues.RD.toString(),
       vol: GlickoInitialValues.VOL.toString(),
@@ -103,17 +123,18 @@ export class PlayerRankingService {
     return await this.playerRankingRepository.save(playerRanking);
   }
 
-  updatePlayerRanking(
+  calculatePlayerRanking(
     playerRanking: PlayerRanking,
     glickoPlayer: GlickoPlayer,
     gameStatus: GameStatus,
   ): PlayerRanking {
     const updatedPlayerRanking = {
-      userId: playerRanking.id,
+      id: playerRanking.id,
+      userId: playerRanking.userId,
       wins: playerRanking.wins + (gameStatus === GameStatus.WIN ? 1 : 0),
       losses: playerRanking.losses + (gameStatus === GameStatus.LOSS ? 1 : 0),
       draws: playerRanking.draws + (gameStatus === GameStatus.TIE ? 1 : 0),
-      rating: glickoPlayer.rating,
+      rating: glickoPlayer.rating.toString(),
       tau: GlickoInitialValues.TAU.toString(),
       rd: glickoPlayer.ratingDeviation.toString(),
       vol: glickoPlayer.volatility.toString(),
