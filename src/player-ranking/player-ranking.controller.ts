@@ -7,7 +7,6 @@ import { PlayerRankingService } from './player-ranking.service';
 export class PlayerRankingController {
   constructor(private playerRankingService: PlayerRankingService) {}
 
-  // should call a setPlayerRanking qui lui verifie si le user a deja un ranking ou non
   @Post()
   async setPlayerRanking(@Body() gameResultDto: GameResultDto): Promise<void> {
     return this.playerRankingService.handlePlayerRankingModification(
@@ -15,13 +14,18 @@ export class PlayerRankingController {
     );
   }
 
-  @Get()
-  async getAllPlayersRanking(): Promise<PlayerRanking[]> {
-    return this.playerRankingService.getAllPlayerRankings();
-  }
+  // @Get()
+  // async getAllPlayersRanking(): Promise<PlayerRanking[]> {
+  //   return this.playerRankingService.getAllPlayerRankings();
+  // }
 
   @Get('/:id')
   async getPlayerRaking(@Param('id') id: string): Promise<PlayerRanking> {
     return this.playerRankingService.getPlayerRanking(id);
+  }
+
+  @Get()
+  async getTopPlayers(): Promise<PlayerRanking[]> {
+    return this.playerRankingService.getTopPlayers();
   }
 }
