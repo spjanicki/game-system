@@ -1,4 +1,4 @@
-import { Injectable, ParseFilePipeBuilder } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerRanking } from './player-ranking.entity';
@@ -11,6 +11,14 @@ import {
 } from 'src/utils/glicko-calculation';
 import { Player as GlickoPlayer } from 'glicko-two';
 import { Player } from 'src/player/player.entity';
+import { PlayerLeague } from 'src/player/player-league.enum';
+
+export interface PlayerRankingInfos {
+  userId: string;
+  username: string;
+  rank: string;
+  currentLeague: PlayerLeague;
+}
 
 @Injectable()
 export class PlayerRankingService {
@@ -18,6 +26,8 @@ export class PlayerRankingService {
     private playerService: PlayerService,
     @InjectRepository(PlayerRanking)
     private playerRankingRepository: Repository<PlayerRanking>,
+    @InjectRepository(Player)
+    private playerRepository: Repository<Player>,
   ) {}
 
   async createNewPlayerRanking(id: string): Promise<PlayerRanking> {
@@ -61,32 +71,43 @@ export class PlayerRankingService {
     return playerRanking;
   }
 
-  async getTopPlayers(): Promise<PlayerRanking[]> {
+  // TODO : Query this
+  async getTopPlayers(userAmount: number): Promise<PlayerRankingInfos[]> {
     const playerRanking = await this.playerRankingRepository.find();
 
-    // Creer dict key-value des players Rankings
-    // playerRanking.forEach();
+    const sortedPlayerRankign = this.sortPlayersByRanking(playerRanking);
+    const users: PlayerRankingInfos[] = [];
+    let index = 0;
 
-    // Ensuite trier ce dict
+    for (const player of sortedPlayerRankign) {
+      if (index < userAmount) {
+        const user = await this.playerService.getPlayerById(player[0]);
+        const playerRankingInfo = {
+          userId: user.id,
+          username: user.username,
+          rank: player[1].toString(),
+          currentLeague: user.currentLeague,
+        };
+        users.push(playerRankingInfo);
+        index++;
+      }
+    }
 
-    // Et retourner uniquement les 10 premiers elements
-
-    return playerRanking;
+    return users;
   }
 
-  // async getTopPlayers(amount: number): Promise<PlayerRanking[]> {
-  //   const query = await this.playerRankingRepository
-  //     .createQueryBuilder('playerRank')
-  //     .select('*')
-  //     .from(PlayerRanking, 'playerRank')
-  //     .leftJoin(Player, 'player')
-  //     .where('playerRank.userId = player.id')
-  //     .orderBy('playerRank.rating')
-  //     .limit(10);
+  sortPlayersByRanking(playerRanking: PlayerRanking[]): Map<string, number> {
+    const pRankingDict = new Map<string, number>();
 
-  //   console.log('Response : ', query.getMany());
-  //   return null;
-  // }
+    playerRanking.forEach((p) => {
+      if (p.rating) {
+        pRankingDict.set(p.userId, Number(p.rating));
+      }
+    });
+
+    const sorted = new Map([...pRankingDict].sort((a, b) => b[1] - a[1]));
+    return sorted;
+  }
 
   async handlePlayerRankingModification(
     gameResultDto: GameResultDto,
@@ -117,11 +138,12 @@ export class PlayerRankingService {
     adversary: PlayerRanking,
     concernedPlayerGameStatus: GameStatus,
   ): Promise<PlayerRanking> {
-    const concernedPlayerOutput = await this.getFirstPlayerGameOutputResult(
-      concernedPlayer,
-      adversary,
-      concernedPlayerGameStatus,
-    );
+    const concernedPlayerOutput =
+      await this.getFirstEnteredPlayerGameOutputResult(
+        concernedPlayer,
+        adversary,
+        concernedPlayerGameStatus,
+      );
 
     return this.calculatePlayerRanking(
       concernedPlayer,
@@ -130,8 +152,7 @@ export class PlayerRankingService {
     );
   }
 
-  // Not a clear name... should find some more meaninfull (firstPlayer is not Top player....)
-  async getFirstPlayerGameOutputResult(
+  async getFirstEnteredPlayerGameOutputResult(
     firstPlayer: PlayerRanking,
     secondPlayer: PlayerRanking,
     gameResultStatus: GameStatus,

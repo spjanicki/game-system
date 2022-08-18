@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 // TODO : Add userConfirmation to be sure the outcome of the game is right.
 @Entity()
 export class GameResult {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid') // not sure its needed
   id: string;
 
   @Column()

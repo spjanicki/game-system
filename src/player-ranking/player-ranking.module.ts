@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Player } from '../player/player.entity';
 import { PlayerRanking } from './player-ranking.entity';
 import { PlayerService } from '../player/player.service';
+import { PlayerModule } from 'src/player/player.module';
 
 @Module({
   providers: [PlayerRankingService, PlayerService],
@@ -12,6 +13,7 @@ import { PlayerService } from '../player/player.service';
   imports: [
     TypeOrmModule.forFeature([Player]),
     TypeOrmModule.forFeature([PlayerRanking]),
+    PlayerModule,
   ],
 })
 export class PlayerRankingModule {}

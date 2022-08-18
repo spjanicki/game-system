@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { GameResultDto } from './dto/game-result.dto';
 import { PlayerRanking } from './player-ranking.entity';
-import { PlayerRankingService } from './player-ranking.service';
+import {
+  PlayerRankingInfos,
+  PlayerRankingService,
+} from './player-ranking.service';
 
 @Controller('player-ranking')
 export class PlayerRankingController {
@@ -24,8 +27,10 @@ export class PlayerRankingController {
     return this.playerRankingService.getPlayerRanking(id);
   }
 
-  @Get()
-  async getTopPlayers(): Promise<PlayerRanking[]> {
-    return this.playerRankingService.getTopPlayers();
+  @Get('topPlayers/:amount')
+  async getTopPlayers(
+    @Param('amount') amount: string,
+  ): Promise<PlayerRankingInfos[]> {
+    return this.playerRankingService.getTopPlayers(Number(amount));
   }
 }
