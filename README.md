@@ -11,7 +11,7 @@ $ npm install
 ## To run the app using Docker
 
 ```bash
-$ start:docker-dev
+$ pm run start:docker-dev
 ```
 
 ## To have access to Swagger documentation 
